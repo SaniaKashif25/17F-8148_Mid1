@@ -1,0 +1,138 @@
+---
+title: "Data Science Sessional I Exam Fall 2021"
+author: "17F-8148"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+#*Task1:*
+This task will generate 12 values for each row.
+
+<!--  Converting PDF Image to Proper Image Format and use high DPI to keep quality of the image: --> 
+
+```{r}
+files <- list.files('./E-10',pattern = "pdf$")
+files
+for(i in 1:8){
+  result =  paste('./E-10/',files[i],sep="")
+  print (result)
+  pngfile <- pdftools::pdf_convert(result, dpi = 600) 
+  # text <- tesseract::ocr(pngfile)
+  library(magick)
+# img <- "e_10_gasoline_price_notification_effective_dated_april_01_2017_2.png"
+input <- image_read(pngfile , strip = TRUE)
+text <- input %>% 
+image_resize("3000x") %>% 
+#image_noise(frink)%>%
+image_contrast(sharpen = 1) %>%
+#image_modulate(input, brightness = 100, saturation = 100, hue = 100) %>%
+image_convert(type = 'Grayscale') %>% 
+image_trim(fuzz = 40) %>% 
+image_write(format = 'png', density = '300x300') %>% 
+tesseract::ocr()  
+cat(text)
+text %>%
+  stringi::stri_split(fixed = "\n") %>%
+  purrr::map(~ stringi::stri_split(str = ., fixed = "‘")) %>%
+  .[[1]] %>%
+  purrr::map_df(~ tibble::tibble(Date = .[1], Price = .[2], Change = .[3])) %>%
+  dplyr::glimpse()
+withoutnull <- na.omit(text)
+withoutnull
+}
+
+```
+##*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+# **Task 2:**
+```{r}
+library(pdftools)
+files <- list.files('./E-10',pattern = ".pdf$")
+files
+for(i in 1:6){
+  if(i == 1){
+    month <- "*january*"
+  }
+  else if( i == 2 ){
+    month <- "*february*" 
+  }
+  else if(i == 3) {
+    month <- "*march*"
+  }
+  else if (i == 4){
+    month <- "*april*"
+  }
+  else if(i == 5) {
+    month <- "*may*"
+  }
+  
+  else if(i == 6){
+    month <- "*june*"
+  }
+  
+  else if( i == 7 ){
+    month <- "*july*"
+  }
+  
+  else if(i == 8) {
+    month <- "*august*"
+  }
+  
+  else if(i == 9){
+    month <- "*september*"
+  }
+  
+  else if( i == 10){
+    month <- "*october*"
+  }
+  
+  else if(i == 11){
+    month <- "*november*"
+  }
+  
+  else if( i == 12)
+  {
+    month <- "*december*"
+  }
+  
+  k <- grep(month, files, value = TRUE) 
+
+length(k)
+ 
+if(length(k) < 8){
+for(j in 2017:2020){
+    print(j)
+   date_wildCard = paste("*", j, ".pdf*", sep="")
+    x <- grep(date_wildCard, k, value = TRUE) 
+    print(x)
+    
+    if(length(x) < 2){
+      cat( month, "_" , j, "missing files")
+      # create a missing file 
+     # x[1].copy krny k bd rename 
+      
+    }
+    if(length(x) == 2){
+      strng <- strsplit(x[1], split = "_")
+      print(strng)
+    }
+}
+}
+}
+
+
+```
+
+
+##Reference links: 
+https://cran.r-project.org/web/packages/tesseract/vignettes/intro.html
+
+https://cran.r-project.org/web/packages/magick/vignettes/intro.html
+
+https://stackoverflow.com/questions/42943533/r-get-last-element-from-str-split
+
+
+
+
+
